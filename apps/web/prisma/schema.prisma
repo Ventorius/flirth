@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Review {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  rating      Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  upvotes     Int          @default(0)
+  downvotes   Int          @default(0)
+  isDeleted   Boolean      @default(false)
+  votes       ReviewVote[]
+}
+
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
+model ReviewVote {
+  id       String   @id @default(uuid())
+  reviewId String
+  userId   String
+  voteType VoteType
+  review   Review   @relation(fields: [reviewId], references: [id])
+
+  @@unique([reviewId, userId]) // Ensures a user can only vote once per review
+}
+
+model Offer {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
